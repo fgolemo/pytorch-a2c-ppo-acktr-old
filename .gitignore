@@ -107,3 +107,4 @@ venv.bak/
 
 .idea/
 trained_models/
+core

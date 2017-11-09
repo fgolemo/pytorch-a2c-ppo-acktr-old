@@ -1,5 +1,6 @@
-import copy
 import glob
+import torch
+import copy
 import os
 import time
 

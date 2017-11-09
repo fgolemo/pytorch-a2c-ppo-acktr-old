@@ -19,7 +19,7 @@ parser.add_argument('--log-interval', type=int, default=10,
 parser.add_argument('--env-name', default='PongNoFrameskip-v4',
                     help='environment to train on (default: PongNoFrameskip-v4)')
 parser.add_argument('--load-dir', default='./trained_models/',
-                    help='directory to save agent logs (default: ./trained_models/)')
+                    help='directory to load agent logs (default: ./trained_models/)')
 parser.add_argument('--log-dir', default='/tmp/gym/',
                     help='directory to save agent logs (default: /tmp/gym)')
 args = parser.parse_args()

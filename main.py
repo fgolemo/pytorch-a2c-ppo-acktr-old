@@ -42,7 +42,8 @@ except OSError:
 
 def main():
     print("#######")
-    print("WARNING: All rewards are clipped so you need to use a monitor (see envs.py) or visdom plot to get true rewards")
+    print("WARNING: All rewards are clipped so you need to use a "
+          "monitor (see envs.py) or visdom plot to get true rewards")
     print("#######")
 
     os.environ['OMP_NUM_THREADS'] = '1'
@@ -74,7 +75,8 @@ def main():
         actor_critic.cuda()
 
     if args.algo == 'a2c':
-        optimizer = optim.RMSprop(actor_critic.parameters(), args.lr, eps=args.eps, alpha=args.alpha)
+        optimizer = optim.RMSprop(actor_critic.parameters(), args.lr,
+                                  eps=args.eps, alpha=args.alpha)
     elif args.algo == 'ppo':
         optimizer = optim.Adam(actor_critic.parameters(), args.lr, eps=args.eps)
     elif args.algo == 'acktr':
@@ -110,7 +112,8 @@ def main():
     for j in range(num_updates):
         for step in range(args.num_steps):
             # Sample actions
-            value, action = actor_critic.act(Variable(rollouts.observations[step], volatile=True))
+            value, action = actor_critic.act(Variable(rollouts.observations[step],
+                                                      volatile=True))
             cpu_actions = action.data.squeeze(1).cpu().numpy()
 
             # Obser reward and next obs
@@ -143,7 +146,9 @@ def main():
         rollouts.compute_returns(next_value, args.use_gae, args.gamma, args.tau)
 
         if args.algo in ['a2c', 'acktr']:
-            values, action_log_probs, dist_entropy = actor_critic.evaluate_actions(Variable(rollouts.observations[:-1].view(-1, *obs_shape)), Variable(rollouts.actions.view(-1, action_shape)))
+            values, action_log_probs, dist_entropy = actor_critic.evaluate_actions(
+                Variable(rollouts.observations[:-1].view(-1, *obs_shape)),
+                Variable(rollouts.actions.view(-1, action_shape)))
 
             values = values.view(args.num_steps, args.num_processes, 1)
             action_log_probs = action_log_probs.view(args.num_steps, args.num_processes, 1)
@@ -171,7 +176,8 @@ def main():
                 optimizer.acc_stats = False
 
             optimizer.zero_grad()
-            (value_loss * args.value_loss_coef + action_loss - dist_entropy * args.entropy_coef).backward()
+            (value_loss * args.value_loss_coef + action_loss -
+             dist_entropy * args.entropy_coef).backward()
 
             if args.algo == 'a2c':
                 nn.utils.clip_grad_norm(actor_critic.parameters(), args.max_grad_norm)
@@ -184,7 +190,9 @@ def main():
             old_model.load_state_dict(actor_critic.state_dict())
 
             for _ in range(args.ppo_epoch):
-                sampler = BatchSampler(SubsetRandomSampler(range(args.num_processes * args.num_steps)), args.batch_size * args.num_processes, drop_last=False)
+                sampler = BatchSampler(SubsetRandomSampler(
+                    range(args.num_processes * args.num_steps)),
+                    args.batch_size * args.num_processes, drop_last=False)
                 for indices in sampler:
                     indices = torch.LongTensor(indices)
                     if args.cuda:
@@ -194,15 +202,23 @@ def main():
                     return_batch = rollouts.returns[:-1].view(-1, 1)[indices]
 
                     # Reshape to do in a single forward pass for all steps
-                    values, action_log_probs, dist_entropy = actor_critic.evaluate_actions(Variable(observations_batch), Variable(actions_batch))
+                    values, action_log_probs, dist_entropy = actor_critic.evaluate_actions(
+                        Variable(observations_batch),
+                        Variable(actions_batch))
 
-                    _, old_action_log_probs, _ = old_model.evaluate_actions(Variable(observations_batch, volatile=True), Variable(actions_batch, volatile=True))
+                    _, old_action_log_probs, _ = old_model.evaluate_actions(
+                        Variable(observations_batch, volatile=True),
+                        Variable(actions_batch, volatile=True))
 
                     ratio = torch.exp(action_log_probs - Variable(old_action_log_probs.data))
                     adv_targ = Variable(advantages.view(-1, 1)[indices])
                     surr1 = ratio * adv_targ
-                    surr2 = torch.clamp(ratio, 1.0 - args.clip_param, 1.0 + args.clip_param) * adv_targ
-                    action_loss = -torch.min(surr1, surr2).mean() # PPO's pessimistic surrogate (L^CLIP)
+                    surr2 = torch.clamp(
+                        ratio, 1.0 - args.clip_param, 1.0 + args.clip_param) * \
+                            adv_targ
+
+                    # PPO's pessimistic surrogate (L^CLIP)
+                    action_loss = -torch.min(surr1, surr2).mean()
 
                     value_loss = (Variable(return_batch) - values).pow(2).mean()
 
@@ -228,20 +244,24 @@ def main():
         if j % args.log_interval == 0:
             end = time.time()
             total_num_steps = (j + 1) * args.num_processes * args.num_steps
-            print("Updates {}, num timesteps {}, FPS {}, mean/median reward {:.1f}/{:.1f}, min/max reward {:.1f}/{:.1f}, entropy {:.5f}, value loss {:.5f}, policy loss {:.5f}".
-                format(j, total_num_steps,
-                       int(total_num_steps / (end - start)),
-                       final_rewards.mean(),
-                       final_rewards.median(),
-                       final_rewards.min(),
-                       final_rewards.max(), -dist_entropy.data[0],
-                       value_loss.data[0], action_loss.data[0]))
+            print(
+                "Updates {}, num timesteps {}, FPS {}, mean/median reward {:.1f}/{:.1f}, "
+                "min/max reward {:.1f}/{:.1f}, entropy {:.5f}, "
+                "value loss {:.5f}, policy loss {:.5f}".
+                    format(j, total_num_steps,
+                           int(total_num_steps / (end - start)),
+                           final_rewards.mean(),
+                           final_rewards.median(),
+                           final_rewards.min(),
+                           final_rewards.max(), -dist_entropy.data[0],
+                           value_loss.data[0], action_loss.data[0]))
         if args.vis and j % args.vis_interval == 0:
             try:
                 # Sometimes monitor doesn't properly flush the outputs
                 win = visdom_plot(viz, win, args.log_dir, args.env_name, args.algo)
             except IOError:
                 pass
+
 
 if __name__ == "__main__":
     main()

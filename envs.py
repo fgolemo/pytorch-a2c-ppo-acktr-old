@@ -20,7 +20,8 @@ def make_env(env_id, seed, rank, log_dir):
         if "Pusher3" in env_id:
             pass #TODO
 
-        is_atari = hasattr(gym.envs, 'atari') and isinstance(env.unwrapped, gym.envs.atari.atari_env.AtariEnv)
+        is_atari = hasattr(gym.envs, 'atari') and isinstance(env.unwrapped,
+                                                             gym.envs.atari.atari_env.AtariEnv)
         if is_atari:
             env = make_atari(env_id)
         env.seed(seed + rank)

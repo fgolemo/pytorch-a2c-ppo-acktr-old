@@ -51,7 +51,7 @@ def main():
 
     if args.vis:
         from visdom import Visdom
-        viz = Visdom()
+        viz = Visdom(args.vis_host, args.vis_port)
         win = None
 
     envs = SubprocVecEnv([

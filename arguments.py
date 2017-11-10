@@ -57,7 +57,7 @@ def get_args():
                         help='disables CUDA training')
     parser.add_argument('--no-vis', action='store_true', default=False,
                         help='disables visdom visualization')
-    parser.add_argument('--vis-host', type=str, default="localhost",
+    parser.add_argument('--vis-host', type=str, default="http://localhost",
                         help='host for visdom, usually localhost, but can be remote')
     parser.add_argument('--vis-port', type=int, default=8097,
                         help='port for visdom, usually 80, but ')

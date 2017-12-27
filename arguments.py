@@ -61,6 +61,8 @@ def get_args():
                         help='host for visdom, usually localhost, but can be remote')
     parser.add_argument('--vis-port', type=int, default=8097,
                         help='port for visdom, usually 80, but ')
+    parser.add_argument('--custom-gym', type=str, default="",
+                        help='for if you need to import a custom gym module')
 
 
     args = parser.parse_args()

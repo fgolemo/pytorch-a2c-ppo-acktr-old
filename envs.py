@@ -1,9 +1,8 @@
 import os
 
 import gym
-import gym_throwandpush
-import gym_reacher2
 from gym.spaces.box import Box
+import importlib
 
 from baselines import bench
 from baselines.common.atari_wrappers import make_atari, wrap_deepmind
@@ -14,8 +13,11 @@ except ImportError:
     pass
 
 
-def make_env(env_id, seed, rank, log_dir):
+def make_env(env_id, seed, rank, log_dir, custom_gym=None):
     def _thunk():
+        if custom_gym is not None and custom_gym != "":
+            module = importlib.import_module(custom_gym, package=None)
+
         env = gym.make(env_id)
         if "Pusher3" in env_id:
             pass #TODO

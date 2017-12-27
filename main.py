@@ -55,12 +55,14 @@ def main():
         win = None
 
     envs = SubprocVecEnv([
-        make_env(args.env_name, args.seed, i, args.log_dir)
+        make_env(args.env_name, args.seed, i, args.log_dir, args.custom_gym)
         for i in range(args.num_processes)
     ])
 
     obs_shape = envs.observation_space.shape
+    print ("original obs shape: {}, {}".format(obs_shape, args.num_stack))
     obs_shape = (obs_shape[0] * args.num_stack, *obs_shape[1:])
+    print ("final obs shape: {}".format(obs_shape))
 
     if len(envs.observation_space.shape) == 3:
         actor_critic = CNNPolicy(obs_shape[0], envs.action_space)

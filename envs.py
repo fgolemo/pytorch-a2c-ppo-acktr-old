@@ -18,6 +18,7 @@ def make_env(env_id, seed, rank, log_dir, custom_gym=None):
     def _thunk():
         if custom_gym is not None and custom_gym != "":
             module = importlib.import_module(custom_gym, package=None)
+            print ("imported env '{}'".format((custom_gym)))
 
         env = gym.make(env_id)
         if "Pusher3" in env_id:

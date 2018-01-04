@@ -60,9 +60,6 @@ except OSError:
     for f in files:
         os.remove(f)
 
-highest_mean_reward = -9999999
-
-
 def main():
     print("#######")
     print(
@@ -72,6 +69,8 @@ def main():
     print("#######")
 
     os.environ['OMP_NUM_THREADS'] = '1'
+
+    highest_mean_reward = -9999999
 
     if args.vis:
         from visdom import Visdom

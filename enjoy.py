@@ -3,6 +3,7 @@ import os
 import types
 
 import numpy as np
+import time
 import torch
 from torch.autograd import Variable
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
@@ -24,10 +25,12 @@ parser.add_argument('--load-dir', default='./trained_models/',
                     help='directory to load agent logs (default: ./trained_models/)')
 parser.add_argument('--log-dir', default='/tmp/gym/',
                     help='directory to save agent logs (default: /tmp/gym)')
+parser.add_argument('--custom-gym', default='',
+                    help='if you need to import a python package to load this gym environment, this is the place')
 args = parser.parse_args()
 
 
-env = make_env(args.env_name, args.seed, 0, None)
+env = make_env(args.env_name, args.seed, 0, None, custom_gym=args.custom_gym)
 env = DummyVecEnv([env])
 
 actor_critic, ob_rms = \
@@ -103,3 +106,4 @@ while True:
             p.resetDebugVisualizerCamera(distance, yaw, -20, humanPos)
 
     render_func('human')
+    time.sleep(.5)

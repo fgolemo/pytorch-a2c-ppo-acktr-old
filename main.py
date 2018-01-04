@@ -44,6 +44,7 @@ if args.recurrent_policy:
 exp = None
 if has_hyperdash:
     exp = Experiment("{} - {}".format(args.env_name, args.algo))
+    exp.param("NAME", run_name)
     for param, value in vars(args).items():
         exp.param(param, value)
 

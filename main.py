@@ -12,6 +12,15 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 
+# Hyperdash is convenient experiment monitor for your phone
+has_hyperdash = False
+try:
+    from hyperdash import Experiment
+    has_hyperdash = True
+except ImportError:
+    # if we don't have Hyperdash, no problem
+    pass
+
 from arguments import get_args
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
@@ -28,6 +37,12 @@ assert args.algo in ['a2c', 'ppo', 'acktr']
 if args.recurrent_policy:
     assert args.algo in ['a2c', 'ppo'], \
         'Recurrent policy is not implemented for ACKTR'
+
+exp = None
+if has_hyperdash:
+    exp = Experiment("{} - {}".format(args.env_name, args.algo))
+    for param, value in vars(args).items():
+        exp.param(param, value)
 
 num_updates = int(args.num_frames) // args.num_steps // args.num_processes
 
@@ -262,12 +277,18 @@ def main():
                        final_rewards.min(),
                        final_rewards.max(), dist_entropy.data[0],
                        value_loss.data[0], action_loss.data[0]))
+            exp.metric("mean reward", final_rewards.mean())
+            exp.metric("min reward", final_rewards.min())
+            exp.metric("max reward", final_rewards.max())
         if args.vis and j % args.vis_interval == 0:
             try:
                 # Sometimes monitor doesn't properly flush the outputs
                 win = visdom_plot(viz, win, args.log_dir, args.env_name, args.algo)
             except IOError:
                 pass
+
+    if has_hyperdash:
+        exp.end()
 
 
 if __name__ == "__main__":

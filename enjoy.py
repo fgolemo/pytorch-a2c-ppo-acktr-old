@@ -34,13 +34,13 @@ args = parser.parse_args()
 env = make_env(args.env_name, args.seed, 0, None, custom_gym=args.custom_gym)
 env = DummyVecEnv([env])
 
-if args.model != "":
-    actor_critic, ob_rms = \
-        torch.load(os.path.join(args.load_dir, args.model + ".pt"))
+what_to_load = args.env_name
 
-else:
-    actor_critic, ob_rms = \
-        torch.load(os.path.join(args.load_dir, args.env_name + ".pt"))
+if args.model != "":
+    what_to_load = args.model
+
+actor_critic, ob_rms = \
+    torch.load(os.path.join(args.load_dir, what_to_load + ".pt"))
 
 if len(env.observation_space.shape) == 1:
     env = VecNormalize(env, ret=False)
@@ -62,9 +62,9 @@ else:
     render_func = env.envs[0].render
 
 obs_shape = env.observation_space.shape
-print ("obs shape:",obs_shape)
+print("obs shape:", obs_shape)
 obs_shape = (obs_shape[0] * args.num_stack, *obs_shape[1:])
-print ("obs shape:",obs_shape)
+print("obs shape:", obs_shape)
 current_obs = torch.zeros(1, *obs_shape)
 states = torch.zeros(1, actor_critic.state_size)
 masks = torch.zeros(1, 1)

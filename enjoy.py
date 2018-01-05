@@ -11,7 +11,6 @@ from baselines.common.vec_env.vec_normalize import VecNormalize
 
 from envs import make_env
 
-
 parser = argparse.ArgumentParser(description='RL')
 parser.add_argument('--seed', type=int, default=1,
                     help='random seed (default: 1)')
@@ -27,19 +26,26 @@ parser.add_argument('--log-dir', default='/tmp/gym/',
                     help='directory to save agent logs (default: /tmp/gym)')
 parser.add_argument('--custom-gym', default='',
                     help='if you need to import a python package to load this gym environment, this is the place')
-args = parser.parse_args()
+parser.add_argument('--model', default='',
+                    help='if the model has a different name than just the name of the gym')
 
+args = parser.parse_args()
 
 env = make_env(args.env_name, args.seed, 0, None, custom_gym=args.custom_gym)
 env = DummyVecEnv([env])
 
-actor_critic, ob_rms = \
-            torch.load(os.path.join(args.load_dir, args.env_name + ".pt"))
+if args.model != "":
+    actor_critic, ob_rms = \
+        torch.load(os.path.join(args.load_dir, args.model + ".pt"))
 
+else:
+    actor_critic, ob_rms = \
+        torch.load(os.path.join(args.load_dir, args.env_name + ".pt"))
 
 if len(env.observation_space.shape) == 1:
     env = VecNormalize(env, ret=False)
     env.ob_rms = ob_rms
+
 
     # An ugly hack to remove updates
     def _obfilt(self, obs):
@@ -48,13 +54,17 @@ if len(env.observation_space.shape) == 1:
             return obs
         else:
             return obs
+
+
     env._obfilt = types.MethodType(_obfilt, env)
     render_func = env.venv.envs[0].render
 else:
     render_func = env.envs[0].render
 
 obs_shape = env.observation_space.shape
+print ("obs shape:",obs_shape)
 obs_shape = (obs_shape[0] * args.num_stack, *obs_shape[1:])
+print ("obs shape:",obs_shape)
 current_obs = torch.zeros(1, *obs_shape)
 states = torch.zeros(1, actor_critic.state_size)
 masks = torch.zeros(1, 1)
@@ -106,4 +116,4 @@ while True:
             p.resetDebugVisualizerCamera(distance, yaw, -20, humanPos)
 
     render_func('human')
-    time.sleep(.5)
+    time.sleep(.05)

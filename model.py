@@ -33,7 +33,7 @@ class FFPolicy(nn.Module):
 
 
 class CNNPolicy(FFPolicy):
-    def __init__(self, num_inputs, action_space, use_gru):
+    def __init__(self, num_inputs, action_space, use_gru, is_normalized):
         super(CNNPolicy, self).__init__()
         # print ("num_inputs: {}".format(num_inputs))
         self.conv1 = nn.Conv2d(num_inputs, 32, 8, stride=4)
@@ -41,6 +41,8 @@ class CNNPolicy(FFPolicy):
         self.conv3 = nn.Conv2d(64, 32, 3, stride=1)
 
         self.linear1 = nn.Linear(32 * 7 * 7, 512)
+
+        self.is_normalized = is_normalized
 
         if use_gru:
             self.gru = nn.GRUCell(512, 512)
@@ -109,6 +111,12 @@ class CNNPolicy(FFPolicy):
                     hx = states = self.gru(x[i], states * masks[i])
                     outputs.append(hx)
                 x = torch.cat(outputs, 0)
+
+        if self.is_normalized:
+            # if the action space is normalized (which it should be) then
+            # every action dimension will be in range [0,1]
+            x = F.sigmoid(x)
+
         return self.critic_linear(x), x, states
 
 

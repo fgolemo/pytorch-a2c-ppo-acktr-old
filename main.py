@@ -95,7 +95,7 @@ def main():
     print("final obs shape: {}".format(obs_shape))
 
     if len(envs.observation_space.shape) == 3:
-        actor_critic = CNNPolicy(obs_shape[0], envs.action_space, args.recurrent_policy)
+        actor_critic = CNNPolicy(obs_shape[0], envs.action_space, args.recurrent_policy, args.normalized)
     else:
         assert not args.recurrent_policy, \
             "Recurrent policy is not implemented for the MLP controller"

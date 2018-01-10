@@ -28,6 +28,8 @@ parser.add_argument('--custom-gym', default='',
                     help='if you need to import a python package to load this gym environment, this is the place')
 parser.add_argument('--model', default='',
                     help='if the model has a different name than just the name of the gym')
+parser.add_argument('--normalized', type=int, default=1,
+                        help='is the action space normalized? 1 for yes, 0 for no. 1 means actions will be in [0,1]')
 
 args = parser.parse_args()
 
@@ -116,4 +118,4 @@ while True:
             p.resetDebugVisualizerCamera(distance, yaw, -20, humanPos)
 
     render_func('human')
-    time.sleep(.05)
+    # time.sleep(.05)

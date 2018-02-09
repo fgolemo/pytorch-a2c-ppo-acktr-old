@@ -133,6 +133,7 @@ def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1):
 
     # Show it in visdom
     image = np.transpose(image, (2, 0, 1))
+    print ("image rendering done")
     return viz.image(image, win=win)
 
 

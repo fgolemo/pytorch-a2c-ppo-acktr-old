@@ -20,14 +20,12 @@ parser.add_argument('--log-interval', type=int, default=10,
                     help='log interval, one log per n updates (default: 10)')
 parser.add_argument('--env-name', default='PongNoFrameskip-v4',
                     help='environment to train on (default: PongNoFrameskip-v4)')
-parser.add_argument('--load-dir', default='./trained_models/',
-                    help='directory to load agent logs (default: ./trained_models/)')
 parser.add_argument('--log-dir', default='/tmp/gym/',
                     help='directory to save agent logs (default: /tmp/gym)')
 parser.add_argument('--custom-gym', default='',
                     help='if you need to import a python package to load this gym environment, this is the place')
 parser.add_argument('--model', default='',
-                    help='if the model has a different name than just the name of the gym')
+                    help='include the path to the trained model file')
 parser.add_argument('--normalized', type=int, default=1,
                         help='is the action space normalized? 1 for yes, 0 for no. 1 means actions will be in [0,1]')
 
@@ -36,13 +34,8 @@ args = parser.parse_args()
 env = make_env(args.env_name, args.seed, 0, None, custom_gym=args.custom_gym)
 env = DummyVecEnv([env])
 
-what_to_load = args.env_name
-
-if args.model != "":
-    what_to_load = args.model
-
 actor_critic, ob_rms = \
-    torch.load(os.path.join(args.load_dir, what_to_load + ".pt"))
+    torch.load(args.model)
 
 if len(env.observation_space.shape) == 1:
     env = VecNormalize(env, ret=False)

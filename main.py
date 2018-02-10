@@ -308,9 +308,9 @@ def main():
         if args.vis and j % args.vis_interval == 0:
             try:
                 # Sometimes monitor doesn't properly flush the outputs
-                print ("Trying to plot vizdom")
+                #print ("Trying to plot vizdom")
                 win = visdom_plot(viz, win, args.log_dir, args.env_name, args.algo)
-                print ("plotted vizdom, allegedly", win)
+                #print ("plotted vizdom, allegedly", win)
             except IOError:
                 print ("Got an IO error when plotting vizdom")
                 pass

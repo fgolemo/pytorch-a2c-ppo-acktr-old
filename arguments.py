@@ -1,5 +1,6 @@
 import argparse
 
+import time
 import torch
 
 
@@ -49,7 +50,7 @@ def get_args():
                         help='number of frames to train (default: 10e6)')
     parser.add_argument('--env-name', default='PongNoFrameskip-v4',
                         help='environment to train on (default: PongNoFrameskip-v4)')
-    parser.add_argument('--log-dir', default='/tmp/gym/',
+    parser.add_argument('--log-dir', default='/tmp/gym',
                         help='directory to save agent logs (default: /tmp/gym)')
     parser.add_argument('--save-dir', default='./trained_models/',
                         help='directory to save agent logs (default: ./trained_models/)')
@@ -73,5 +74,6 @@ def get_args():
 
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     args.vis = not args.no_vis
+    args.log_dir = args.log_dir + time.strftime("%y%m%d-%H%M%S%f")
 
     return args

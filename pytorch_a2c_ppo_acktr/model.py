@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from distributions import Categorical, DiagGaussian
-from utils import orthogonal
+from pytorch_a2c_ppo_acktr.distributions import Categorical, DiagGaussian
+from pytorch_a2c_ppo_acktr.utils import orthogonal
 
 
 def weights_init(m):

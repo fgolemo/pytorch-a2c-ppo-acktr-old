@@ -1,14 +1,11 @@
 import glob
-import torch
 import copy
 import os
 import time
 
-import gym
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from shutil import copyfile
 from torch.autograd import Variable
@@ -23,15 +20,15 @@ except ImportError:
     # if we don't have Hyperdash, no problem
     pass
 
-from arguments import get_args
+from pytorch_a2c_ppo_acktr.arguments import get_args
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 from baselines.common.vec_env.vec_normalize import VecNormalize
-from envs import make_env
-from kfac import KFACOptimizer
-from model import CNNPolicy, MLPPolicy
-from storage import RolloutStorage
-from visualize import visdom_plot
+from pytorch_a2c_ppo_acktr.envs import make_env
+from pytorch_a2c_ppo_acktr.kfac import KFACOptimizer
+from pytorch_a2c_ppo_acktr.model import CNNPolicy, MLPPolicy
+from pytorch_a2c_ppo_acktr.storage import RolloutStorage
+from pytorch_a2c_ppo_acktr.visualize import visdom_plot
 
 args = get_args()
 run_name = time.strftime("%y%m%d%H%M%S")

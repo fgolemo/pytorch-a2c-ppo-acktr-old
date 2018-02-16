@@ -1,15 +1,13 @@
 import argparse
-import os
 import types
 
 import numpy as np
-import time
 import torch
 from torch.autograd import Variable
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from baselines.common.vec_env.vec_normalize import VecNormalize
 
-from envs import make_env
+from pytorch_a2c_ppo_acktr.envs import make_env
 
 parser = argparse.ArgumentParser(description='RL')
 parser.add_argument('--seed', type=int, default=1,

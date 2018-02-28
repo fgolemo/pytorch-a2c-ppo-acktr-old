@@ -84,6 +84,7 @@ if args.env_name.find('Bullet') > -1:
             torsoId = i
 
 while True:
+    print (current_obs)
     value, action, _, states = actor_critic.act(Variable(current_obs, volatile=True),
                                                 Variable(states, volatile=True),
                                                 Variable(masks, volatile=True),

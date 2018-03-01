@@ -1,7 +1,10 @@
 import numpy as np
 import torch
 from torch.autograd import Variable
-
+import sys
+import pytorch_a2c_ppo_acktr.model as pt_model
+import pytorch_a2c_ppo_acktr.utils as pt_utils
+import pytorch_a2c_ppo_acktr.distributions as pt_dist
 
 class Inference(object):
     def __init__(self, model, seed=1, num_stack=1, normalized=1):
@@ -15,6 +18,10 @@ class Inference(object):
         self.cliprew = 10.0
         self.epsilon = 1e-8
 
+        print ("sys.modules",sys.modules)
+        sys.modules['model'] = pt_model
+        sys.modules['distributions'] = pt_dist
+        sys.modules['utils'] = pt_utils
         self.actor_critic, self.ob_rms = torch.load(self.model)
 
         self.states = torch.zeros(1, self.actor_critic.state_size)

@@ -28,8 +28,8 @@ class Inference(object):
         self.states = torch.zeros(1, self.actor_critic.state_size)
         self.masks = torch.zeros(1, 1)
 
-        self.obs_buffer1 = []
-        self.obs_buffer2 = []
+        # self.obs_buffer1 = []
+        # self.obs_buffer2 = []
 
     def normalize_obs(self, obs):
         self.ob_rms.update(obs)
@@ -37,11 +37,12 @@ class Inference(object):
         return obs
 
     def get_action(self, obs):
-        self.obs_buffer1.append(obs)
+        # self.obs_buffer1.append(obs) # this was only for debugging
         obs = self.normalize_obs(obs)
-        self.obs_buffer2.append(obs)
+        # self.obs_buffer2.append(obs) # only for debugging
 
         obs = torch.from_numpy(obs).float().unsqueeze(0)
+
         value, action, _, states = self.actor_critic.act(Variable(obs, volatile=True),
                                                          Variable(self.states, volatile=True),
                                                          Variable(self.masks, volatile=True),
@@ -58,7 +59,7 @@ if __name__ == '__main__':
 
     inf = Inference("/home/florian/dev/pytorch-a2c-ppo-acktr/"
                     "trained_models/ppo/"
-                    "ErgoFightStatic-Headless-Fencing-v0-180209225957.pt")
+                    "ErgoFightStatic-Headless-Fencing-v0-180301140937.pt")
 
     env = gym.make("ErgoFightStatic-Graphical-Fencing-v0")
     obs = env.reset()
@@ -68,6 +69,9 @@ if __name__ == '__main__':
     att_actions = []
     for i in range(100):
         action = inf.get_action(obs)
+        print (obs)
+        print (action)
+        print (" ")
         att_actions.append(action)
         # print (obs)
         # print (action)
@@ -80,7 +84,7 @@ if __name__ == '__main__':
     # for i in range(6):
     #     plt.plot(range(len(att_actions)), att_actions[:, i])
 
-    obs_buffer = np.array(inf.obs_buffer1)
+    obs_buffer = np.array(inf.obs_buffer2)
 
     f, axarr = plt.subplots(2, 2)
 

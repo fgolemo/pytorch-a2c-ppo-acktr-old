@@ -71,6 +71,7 @@ def main():
     highest_mean_reward = -9999999
 
     if args.vis:
+        print ("===USING VISDOM===")
         from visdom import Visdom
         viz = Visdom(server=args.vis_host, port=args.vis_port, ipv6=False)
         win = None

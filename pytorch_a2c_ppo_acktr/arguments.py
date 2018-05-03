@@ -68,6 +68,8 @@ def get_args():
                         help='for if you need to import a custom gym module')
     parser.add_argument('--normalized', type=int, default=1,
                         help='is the action space normalized? 1 for yes, 0 for no. 1 means actions will be in [0,1]')
+    parser.add_argument('--robot', action='store_true', default=False,
+                        help='for robot maintenance - pauses the experiment every num-frames/10 steps')
 
 
     args = parser.parse_args()

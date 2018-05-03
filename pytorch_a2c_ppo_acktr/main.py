@@ -47,6 +47,8 @@ if has_hyperdash:
 
 num_updates = int(args.num_frames) // args.num_steps // args.num_processes
 
+num_breaks = num_updates / 10
+
 torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
@@ -312,6 +314,10 @@ def main():
             except IOError:
                 print ("Got an IO error when plotting vizdom")
                 pass
+
+        if args.robot and j % num_breaks == 0:
+            envs.venv.reset()
+            input("\n[ROBOT MAINTENANCE]. Press Enter to continue...")
 
     if has_hyperdash:
         exp.end()

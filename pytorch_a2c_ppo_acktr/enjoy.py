@@ -1,4 +1,5 @@
 import argparse
+import time
 import types
 
 import numpy as np
@@ -25,9 +26,17 @@ parser.add_argument('--custom-gym', default='',
 parser.add_argument('--model', default='',
                     help='include the path to the trained model file')
 parser.add_argument('--normalized', type=int, default=1,
-                        help='is the action space normalized? 1 for yes, 0 for no. 1 means actions will be in [0,1]')
+                    help='is the action space normalized? 1 for yes, 0 for no. 1 means actions will be in [0,1]')
+parser.add_argument('--episodes', '-ep', type=int, default=0,
+                    help='run for how many episodes?, set to 0 for unlimited')
+parser.add_argument('--gather-rewards', '-gr', action='store_true', default=False,
+                    help='save epdisode rewards to a file')
 
 args = parser.parse_args()
+
+if not args.gather_rewards:
+    print ("===REWARDS ARE NOT BEING RECORDED===")
+
 
 env = make_env(args.env_name, args.seed, 0, None, custom_gym=args.custom_gym)
 env = DummyVecEnv([env])
@@ -83,8 +92,20 @@ if args.env_name.find('Bullet') > -1:
         if (p.getBodyInfo(i)[0].decode() == "torso"):
             torsoId = i
 
+
+def write_rewards(rewards):
+    filename = "{}-rewards-{}-{}.npz".format(
+        args.model[:-3],
+        args.episodes,
+        time.strftime("%y%m%d%H%M%S"))
+    np.savez(filename, rewards=rewards)
+    print("wrote results to file:", filename)
+
+
+episode = 0
+rewards = []
+reward_buf = 0
 while True:
-    print (current_obs)
     value, action, _, states = actor_critic.act(Variable(current_obs, volatile=True),
                                                 Variable(states, volatile=True),
                                                 Variable(masks, volatile=True),
@@ -93,6 +114,7 @@ while True:
     cpu_actions = action.data.squeeze(1).cpu().numpy()
     # Obser reward and next obs
     obs, reward, done, _ = env.step(cpu_actions)
+    reward_buf += reward
 
     masks.fill_(0.0 if done else 1.0)
 
@@ -111,3 +133,15 @@ while True:
 
     render_func('human')
     # time.sleep(.05)
+
+    if done:
+        rewards.append(reward_buf)
+        reward_buf = 0
+        env.reset()
+
+    if done and args.episodes != 0:
+        episode += 1
+        if episode == args.episodes:
+            if args.gather_rewards:
+                write_rewards(rewards)
+            break

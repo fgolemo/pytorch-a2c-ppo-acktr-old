@@ -31,6 +31,12 @@ from pytorch_a2c_ppo_acktr.storage import RolloutStorage
 from pytorch_a2c_ppo_acktr.visualize import visdom_plot
 
 args = get_args()
+
+if args.memdebug:
+    import gc
+    import objgraph
+    import ipdb
+
 run_name = time.strftime("%y%m%d%H%M%S")
 
 assert args.algo in ['a2c', 'ppo', 'acktr']
@@ -318,6 +324,11 @@ def main():
         if args.robot and j % num_breaks == 0:
             envs.venv.reset()
             input("\n[ROBOT MAINTENANCE]. Press Enter to continue...")
+
+        if args.memdebug and j % 20 == 0:
+            gc.collect()  # don't care about stuff that would be garbage collected properly
+            print (objgraph.show_most_common_types())
+            ipdb.set_trace()
 
     if has_hyperdash:
         exp.end()

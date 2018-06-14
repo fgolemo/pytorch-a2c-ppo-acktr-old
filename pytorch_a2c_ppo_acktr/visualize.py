@@ -109,14 +109,14 @@ def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1):
     plt.plot(tx, ty, label="{}".format(name))
 
     # Ugly hack to detect atari
-    if game.find('NoFrameskip') > -1:
-        plt.xticks([1e6, 2e6, 4e6, 6e6, 8e6, 10e6],
-                   ["1M", "2M", "4M", "6M", "8M", "10M"])
-        plt.xlim(0, 10e6)
-    else:
-        plt.xticks([1e5, 2e5, 4e5, 6e5, 8e5, 1e5],
-                   ["0.1M", "0.2M", "0.4M", "0.6M", "0.8M", "1M"])
-        plt.xlim(0, 1e6)
+    # if game.find('NoFrameskip') > -1:
+    #     plt.xticks([1e6, 2e6, 4e6, 6e6, 8e6, 10e6],
+    #                ["1M", "2M", "4M", "6M", "8M", "10M"])
+    #     plt.xlim(0, 10e6)
+    # else:
+    #     plt.xticks([1e5, 2e5, 4e5, 6e5, 8e5, 1e5],
+    #                ["0.1M", "0.2M", "0.4M", "0.6M", "0.8M", "1M"])
+    #     plt.xlim(0, 1e6)
 
     plt.xlabel('Number of Timesteps')
     plt.ylabel('Rewards')
@@ -140,4 +140,4 @@ def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1):
 if __name__ == "__main__":
     from visdom import Visdom
     viz = Visdom()
-    visdom_plot(viz, None, '/tmp/gym/', 'BreakOut', 'a2c', bin_size=100, smooth=1)
+    visdom_plot(viz, None, '/tmp/gym180530-232401%f/', 'ErgoShield', 'ppo', bin_size=100, smooth=1)

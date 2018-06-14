@@ -132,7 +132,7 @@ while True:
             p.resetDebugVisualizerCamera(distance, yaw, -20, humanPos)
 
     render_func('human')
-    # time.sleep(.05)
+    time.sleep(.01)
 
     if done:
         rewards.append(reward_buf)

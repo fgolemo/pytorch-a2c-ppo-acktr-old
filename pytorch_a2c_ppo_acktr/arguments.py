@@ -66,8 +66,8 @@ def get_args():
                         help='port for visdom, usually 80, but ')
     parser.add_argument('--custom-gym', type=str, default="",
                         help='for if you need to import a custom gym module')
-    parser.add_argument('--normalized', type=int, default=1,
-                        help='is the action space normalized? 1 for yes, 0 for no. 1 means actions will be in [0,1]')
+    parser.add_argument('--normalized', action='store_true', default=False,
+                        help='is the action space normalized? Means actions will be in [-1,1]')
     parser.add_argument('--robot', action='store_true', default=False,
                         help='for robot maintenance - pauses the experiment every num-frames/10 steps')
     parser.add_argument('--memdebug','-mdbg', action='store_true', default=False,

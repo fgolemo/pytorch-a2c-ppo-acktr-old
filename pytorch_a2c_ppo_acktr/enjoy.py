@@ -25,8 +25,8 @@ parser.add_argument('--custom-gym', default='',
                     help='if you need to import a python package to load this gym environment, this is the place')
 parser.add_argument('--model', default='',
                     help='include the path to the trained model file')
-parser.add_argument('--normalized', type=int, default=1,
-                    help='is the action space normalized? 1 for yes, 0 for no. 1 means actions will be in [0,1]')
+parser.add_argument('--normalized', action='store_true', default=False,
+                    help='is the action space normalized? Means actions will be in [-1,1]')
 parser.add_argument('--episodes', '-ep', type=int, default=0,
                     help='run for how many episodes?, set to 0 for unlimited')
 parser.add_argument('--gather-rewards', '-gr', action='store_true', default=False,
@@ -112,7 +112,10 @@ while True:
                                                 deterministic=True)
     states = states.data
     cpu_actions = action.data.squeeze(1).cpu().numpy()
-    # Obser reward and next obs
+
+    # print(cpu_actions)
+
+    # Observe reward and next obs
     obs, reward, done, _ = env.step(cpu_actions)
     reward_buf += reward
 

@@ -132,7 +132,7 @@ def weights_init_mlp(m):
 
 
 class MLPPolicy(FFPolicy):
-    def __init__(self, num_inputs, action_space):
+    def __init__(self, num_inputs, action_space, normalized=False):
         super(MLPPolicy, self).__init__()
 
         self.action_space = action_space
@@ -149,7 +149,7 @@ class MLPPolicy(FFPolicy):
             self.dist = Categorical(64, num_outputs)
         elif action_space.__class__.__name__ == "Box":
             num_outputs = action_space.shape[0]
-            self.dist = DiagGaussian(64, num_outputs)
+            self.dist = DiagGaussian(64, num_outputs, normalized)
         else:
             raise NotImplementedError
 

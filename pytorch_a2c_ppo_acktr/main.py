@@ -105,7 +105,7 @@ def main():
     else:
         assert not args.recurrent_policy, \
             "Recurrent policy is not implemented for the MLP controller"
-        actor_critic = MLPPolicy(obs_shape[0], envs.action_space)
+        actor_critic = MLPPolicy(obs_shape[0], envs.action_space, args.normalized)
 
     if envs.action_space.__class__.__name__ == "Discrete":
         action_shape = 1
@@ -308,9 +308,10 @@ def main():
                            final_rewards.min(),
                            final_rewards.max(), dist_entropy.data[0],
                            value_loss.data[0], action_loss.data[0]))
-            exp.metric("mean reward", final_rewards.mean())
-            exp.metric("min reward", final_rewards.min())
-            exp.metric("max reward", final_rewards.max())
+
+            exp.metric("mean reward", float(final_rewards.mean().numpy()))
+            exp.metric("min reward", float(final_rewards.min().numpy()))
+            exp.metric("max reward", float(final_rewards.max().numpy()))
         if args.vis and j % args.vis_interval == 0:
             try:
                 # Sometimes monitor doesn't properly flush the outputs

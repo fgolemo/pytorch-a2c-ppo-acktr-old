@@ -39,8 +39,9 @@ class Categorical(nn.Module):
 
 
 class DiagGaussian(nn.Module):
-    def __init__(self, num_inputs, num_outputs):
+    def __init__(self, num_inputs, num_outputs, normalized = False):
         super(DiagGaussian, self).__init__()
+        self.normalized = normalized
         self.fc_mean = nn.Linear(num_inputs, num_outputs)
         self.logstd = AddBias(torch.zeros(num_outputs))
 
@@ -67,6 +68,10 @@ class DiagGaussian(nn.Module):
             action = action_mean + action_std * noise
         else:
             action = action_mean
+
+        if self.normalized:
+            action = F.tanh(action)
+
         return action
 
     def logprobs_and_entropy(self, x, actions):

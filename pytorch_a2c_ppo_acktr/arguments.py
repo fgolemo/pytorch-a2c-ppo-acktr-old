@@ -56,6 +56,8 @@ def get_args():
                         help='directory to save agent logs (default: ../trained_models/)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
+    parser.add_argument('--add-timestep', action='store_true', default=False,
+                        help='add timestep to observations')
     parser.add_argument('--recurrent-policy', action='store_true', default=False,
                         help='use a recurrent policy')
     parser.add_argument('--no-vis', action='store_true', default=False,
@@ -70,9 +72,8 @@ def get_args():
                         help='is the action space normalized? Means actions will be in [-1,1]')
     parser.add_argument('--robot', action='store_true', default=False,
                         help='for robot maintenance - pauses the experiment every num-frames/10 steps')
-    parser.add_argument('--memdebug','-mdbg', action='store_true', default=False,
+    parser.add_argument('--memdebug', '-mdbg', action='store_true', default=False,
                         help='pause every 20 iterations to enable memory profiling')
-
 
     args = parser.parse_args()
 

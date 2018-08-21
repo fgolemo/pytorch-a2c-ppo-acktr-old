@@ -3,14 +3,17 @@
 # Thanks to the author and OpenAI team!
 
 import glob
-import json
 import os
 
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
+plt.switch_backend('agg')
 import numpy as np
 from scipy.signal import medfilt
+
 matplotlib.rcParams.update({'font.size': 8})
 
 
@@ -20,7 +23,7 @@ def smooth_reward_curve(x, y):
     k = halfwidth
     xsmoo = x[k:-k]
     ysmoo = np.convolve(y, np.ones(2 * k + 1), mode='valid') / \
-        np.convolve(np.ones_like(y), np.ones(2 * k + 1), mode='valid')
+            np.convolve(np.ones_like(y), np.ones(2 * k + 1), mode='valid')
     downsample = max(int(np.floor(len(xsmoo) / 1e3)), 1)
     return xsmoo[::downsample], ysmoo[::downsample]
 
@@ -42,7 +45,7 @@ def fix_point(x, y, interval):
 
         if pointer + 1 < len(x):
             alpha = (y[pointer + 1] - y[pointer]) / \
-                (x[pointer + 1] - x[pointer])
+                    (x[pointer + 1] - x[pointer])
             tmpy = y[pointer] + alpha * (tmpx - x[pointer])
             fx.append(tmpx)
             fy.append(tmpy)
@@ -100,7 +103,7 @@ color_defaults = [
 ]
 
 
-def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1):
+def visdom_plot(viz, win, folder, game, name, num_steps, bin_size=100, smooth=1):
     tx, ty = load_data(folder, smooth, bin_size)
     if tx is None or ty is None:
         return win
@@ -108,19 +111,14 @@ def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1):
     fig = plt.figure()
     plt.plot(tx, ty, label="{}".format(name))
 
-    # Ugly hack to detect atari
-    # if game.find('NoFrameskip') > -1:
-    #     plt.xticks([1e6, 2e6, 4e6, 6e6, 8e6, 10e6],
-    #                ["1M", "2M", "4M", "6M", "8M", "10M"])
-    #     plt.xlim(0, 10e6)
-    # else:
-    #     plt.xticks([1e5, 2e5, 4e5, 6e5, 8e5, 1e5],
-    #                ["0.1M", "0.2M", "0.4M", "0.6M", "0.8M", "1M"])
-    #     plt.xlim(0, 1e6)
+    # tick_fractions = np.array([0.1, 0.2, 0.4, 0.6, 0.8, 1.0])
+    # ticks = tick_fractions * num_steps
+    # tick_names = ["{:.0e}".format(tick) for tick in ticks]
+    # plt.xticks(ticks, tick_names)
+    # plt.xlim(0, num_steps * 1.01)
 
     plt.xlabel('Number of Timesteps')
     plt.ylabel('Rewards')
-
 
     plt.title(game)
     plt.legend(loc=4)
@@ -128,16 +126,17 @@ def visdom_plot(viz, win, folder, game, name, bin_size=100, smooth=1):
     plt.draw()
 
     image = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-    image = image.reshape(fig.canvas.get_width_height()[::-1] + (3, ))
+    image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
     plt.close(fig)
 
     # Show it in visdom
     image = np.transpose(image, (2, 0, 1))
-    #print ("image rendering done")
+    # print ("image rendering done")
     return viz.image(image, win=win)
 
 
 if __name__ == "__main__":
     from visdom import Visdom
+
     viz = Visdom()
     visdom_plot(viz, None, '/tmp/gym180530-232401%f/', 'ErgoShield', 'ppo', bin_size=100, smooth=1)

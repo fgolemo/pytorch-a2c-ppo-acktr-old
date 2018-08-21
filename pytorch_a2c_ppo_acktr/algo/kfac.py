@@ -1,10 +1,12 @@
 import math
 
 import torch
-import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
+
 from pytorch_a2c_ppo_acktr.utils import AddBias
+
 
 # TODO: In order to make this code faster:
 # 1) Implement _extract_patches as a single cuda kernel
@@ -20,7 +22,8 @@ def _extract_patches(x, kernel_size, stride, padding):
     x = x.unfold(3, kernel_size[1], stride[1])
     x = x.transpose_(1, 2).transpose_(2, 3).contiguous()
     x = x.view(
-        x.size(0), x.size(1), x.size(2), x.size(3) * x.size(4) * x.size(5))
+        x.size(0), x.size(1), x.size(2),
+        x.size(3) * x.size(4) * x.size(5))
     return x
 
 
@@ -98,7 +101,7 @@ class KFACOptimizer(optim.Optimizer):
 
         def split_bias(module):
             for mname, child in module.named_children():
-                if hasattr(child, 'bias'):
+                if hasattr(child, 'bias') and child.bias is not None:
                     module._modules[mname] = SplitBias(child)
                 else:
                     split_bias(child)
@@ -140,7 +143,7 @@ class KFACOptimizer(optim.Optimizer):
             momentum=self.momentum)
 
     def _save_input(self, module, input):
-        if input[0].volatile == False and self.steps % self.Ts == 0:
+        if torch.is_grad_enabled() and self.steps % self.Ts == 0:
             classname = module.__class__.__name__
             layer_info = None
             if classname == 'Conv2d':
@@ -164,8 +167,8 @@ class KFACOptimizer(optim.Optimizer):
                 layer_info = (module.kernel_size, module.stride,
                               module.padding)
 
-            gg = compute_cov_g(grad_output[0].data, classname,
-                               layer_info, self.fast_cnn)
+            gg = compute_cov_g(grad_output[0].data, classname, layer_info,
+                               self.fast_cnn)
 
             # Initialize buffers
             if self.steps == 0:
@@ -178,7 +181,7 @@ class KFACOptimizer(optim.Optimizer):
             classname = module.__class__.__name__
             if classname in self.known_modules:
                 assert not ((classname in ['Linear', 'Conv2d']) and module.bias is not None), \
-                                    "You must have a bias as a separate layer"
+                    "You must have a bias as a separate layer"
 
                 self.modules.append(module)
                 module.register_forward_pre_hook(self._save_input)
@@ -217,7 +220,7 @@ class KFACOptimizer(optim.Optimizer):
 
             v1 = self.Q_g[m].t() @ p_grad_mat @ self.Q_a[m]
             v2 = v1 / (
-                self.d_g[m].unsqueeze(1) * self.d_a[m].unsqueeze(0) + la)
+                    self.d_g[m].unsqueeze(1) * self.d_a[m].unsqueeze(0) + la)
             v = self.Q_g[m] @ v2 @ self.Q_a[m].t()
 
             v = v.view(p.grad.data.size())

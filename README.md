@@ -27,10 +27,13 @@ Please use this bibtex if you want to cite this repository in your publications:
 * [Atari Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment)
 * [MuJoCo](http://mujoco.org)
 * [PyBullet](http://pybullet.org) (including Racecar, Minitaur and Kuka)
+* [DeepMind Control Suite](https://github.com/deepmind/dm_control) (via [dm_control2gym](https://github.com/martinseilair/dm_control2gym))
 
 I highly recommend PyBullet as a free open source alternative to MuJoCo for continuous control tasks.
 
 All environments are operated using exactly the same Gym interface. See their documentations for a comprehensive list.
+
+To use the DeepMind Control Suite environments, set the flag `--env-name dm.<domain_name>.<task_name>`, where `domain_name` and `task_name` are the name of a domain (e.g. `hopper`) and a task within that domain (e.g. `stand`) from the DeepMind Control Suite. Refer to their repo and their [tech report](https://arxiv.org/abs/1801.00690) for a full list of available domains and tasks. Other than setting the task, the API for interacting with the environment is exactly the same as for all the Gym environments thanks to [dm_control2gym](https://github.com/martinseilair/dm_control2gym).
 
 ## Requirements
 
@@ -83,7 +86,7 @@ python main.py --env-name "PongNoFrameskip-v4"
 #### PPO
 
 ```bash
-python main.py --env-name "PongNoFrameskip-v4" --algo ppo --use-gae --lr 2.5e-4 --clip-param 0.1 --num-processes 8 --num-steps 128 --num-mini-batch 4 --vis-interval 1 --log-interval 1
+python main.py --env-name "PongNoFrameskip-v4" --algo ppo --use-gae --lr 2.5e-4 --clip-param 0.1 --value-loss-coef 1 --num-processes 8 --num-steps 128 --num-mini-batch 4 --vis-interval 1 --log-interval 1
 ```
 
 #### ACKTR
@@ -93,16 +96,19 @@ python main.py --env-name "PongNoFrameskip-v4" --algo acktr --num-processes 32 -
 ```
 
 ### MuJoCo
+
+I **highly** recommend to use --add-timestep argument with some mujoco environments (for example, Reacher) despite it's not a default option with OpenAI implementations.
+
 #### A2C
 
 ```bash
-python main.py --env-name "Reacher-v1" --num-stack 1 --num-frames 1000000
+python main.py --env-name "Reacher-v2" --num-stack 1 --num-frames 1000000
 ```
 
 #### PPO
 
 ```bash
-python main.py --env-name "Reacher-v1" --algo ppo --use-gae --vis-interval 1  --log-interval 1 --num-stack 1 --num-steps 2048 --num-processes 1 --lr 3e-4 --entropy-coef 0 --ppo-epoch 10 --num-mini-batch 32 --gamma 0.99 --tau 0.95 --num-frames 1000000
+python main.py --env-name "Reacher-v2" --algo ppo --use-gae --vis-interval 1  --log-interval 1 --num-stack 1 --num-steps 2048 --num-processes 1 --lr 3e-4 --entropy-coef 0 --value-loss-coef 1 --ppo-epoch 10 --num-mini-batch 32 --gamma 0.99 --tau 0.95 --num-frames 1000000
 ```
 
 #### ACKTR
@@ -126,7 +132,7 @@ python enjoy.py --load-dir trained_models/a2c --env-name "PongNoFrameskip-v4" --
 ### MuJoCo
 
 ```bash
-python enjoy.py --load-dir trained_models/ppo --env-name "Reacher-v1" --num-stack 1
+python enjoy.py --load-dir trained_models/ppo --env-name "Reacher-v2" --num-stack 1
 ```
 
 ## Results

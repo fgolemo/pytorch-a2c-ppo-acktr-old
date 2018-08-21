@@ -69,9 +69,9 @@ if __name__ == '__main__':
     att_actions = []
     for i in range(100):
         action = inf.get_action(obs)
-        print (obs)
-        print (action)
-        print (" ")
+        print(obs)
+        print(action)
+        print(" ")
         att_actions.append(action)
         # print (obs)
         # print (action)
@@ -103,7 +103,7 @@ if __name__ == '__main__':
             plot_vel = 1
             title = "robot 1 vel"
 
-        axarr[plot_vel, plot_pos].plot(range(len(obs_buffer)), obs_buffer[:, i], label=int(i-(np.floor(i/6)*6)))
+        axarr[plot_vel, plot_pos].plot(range(len(obs_buffer)), obs_buffer[:, i], label=int(i - (np.floor(i / 6) * 6)))
         axarr[plot_vel, plot_pos].set_title(title)
         axarr[plot_vel, plot_pos].legend()
 

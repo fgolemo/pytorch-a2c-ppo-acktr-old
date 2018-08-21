@@ -11,13 +11,13 @@ from shutil import copyfile
 from pytorch_a2c_ppo_acktr import algo
 
 has_hyperdash = False
-# try:
-#     from hyperdash import Experiment
-#
-#     has_hyperdash = True
-# except ImportError:
-#     # if we don't have Hyperdash, no problem
-#     pass
+try:
+    from hyperdash import Experiment
+
+    has_hyperdash = True
+except ImportError:
+    # if we don't have Hyperdash, no problem
+    pass
 
 from pytorch_a2c_ppo_acktr.arguments import get_args
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv

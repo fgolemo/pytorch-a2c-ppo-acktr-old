@@ -10,14 +10,16 @@ class Flatten(nn.Module):
 
 
 class Policy(nn.Module):
-    def __init__(self, obs_shape, action_space, recurrent_policy):
+    def __init__(self, obs_shape, action_space, recurrent_policy, normalized=False):
         super(Policy, self).__init__()
+        self.normalized = normalized
+
         if len(obs_shape) == 3:
-            self.base = CNNBase(obs_shape[0], recurrent_policy)
+            self.base = CNNBase(obs_shape[0], recurrent_policy, is_normalized=normalized)
         elif len(obs_shape) == 1:
             assert not recurrent_policy, \
                 "Recurrent policy is not implemented for the MLP controller"
-            self.base = MLPBase(obs_shape[0])
+            self.base = MLPBase(obs_shape[0], normalized=normalized)
         else:
             raise NotImplementedError
 
@@ -149,8 +151,9 @@ class CNNBase(nn.Module):
 
 
 class MLPBase(nn.Module):
-    def __init__(self, num_inputs):
+    def __init__(self, num_inputs, normalized=False):
         super(MLPBase, self).__init__()
+        self.normalized = normalized
 
         init_ = lambda m: init(m,
                                init_normc_,

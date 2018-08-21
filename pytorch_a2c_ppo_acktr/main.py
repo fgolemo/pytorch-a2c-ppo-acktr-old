@@ -5,21 +5,19 @@ import time
 
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.optim as optim
 from shutil import copyfile
 
 # Hyperdash is convenient experiment monitor for your phone
 from pytorch_a2c_ppo_acktr import algo
 
 has_hyperdash = False
-try:
-    from hyperdash import Experiment
-
-    has_hyperdash = True
-except ImportError:
-    # if we don't have Hyperdash, no problem
-    pass
+# try:
+#     from hyperdash import Experiment
+#
+#     has_hyperdash = True
+# except ImportError:
+#     # if we don't have Hyperdash, no problem
+#     pass
 
 from pytorch_a2c_ppo_acktr.arguments import get_args
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
@@ -86,7 +84,7 @@ def main():
         viz = Visdom(server=args.vis_host, port=args.vis_port, ipv6=False)
         win = None
 
-    envs = [make_env(args.env_name, args.seed, i, args.log_dir, args.add_timestep)
+    envs = [make_env(args.env_name, args.seed, i, args.log_dir, args.add_timestep, args.custom_gym)
             for i in range(args.num_processes)]
 
     if args.num_processes > 1:
@@ -102,7 +100,7 @@ def main():
     obs_shape = (obs_shape[0] * args.num_stack, *obs_shape[1:])
     print("final obs shape: {}".format(obs_shape))
 
-    actor_critic = Policy(obs_shape, envs.action_space, args.recurrent_policy, args.normalize)
+    actor_critic = Policy(obs_shape, envs.action_space, args.recurrent_policy, args.normalized)
 
     if envs.action_space.__class__.__name__ == "Discrete":
         action_shape = 1
@@ -223,9 +221,10 @@ def main():
                            final_rewards.min(),
                            final_rewards.max(), dist_entropy,
                            value_loss, action_loss))
-            exp.metric("mean reward", float(final_rewards.mean().numpy()))
-            exp.metric("min reward", float(final_rewards.min().numpy()))
-            exp.metric("max reward", float(final_rewards.max().numpy()))
+            if exp is not None:
+                exp.metric("mean reward", float(final_rewards.mean().numpy()))
+                exp.metric("min reward", float(final_rewards.min().numpy()))
+                exp.metric("max reward", float(final_rewards.max().numpy()))
 
         if args.vis and j % args.vis_interval == 0:
             try:

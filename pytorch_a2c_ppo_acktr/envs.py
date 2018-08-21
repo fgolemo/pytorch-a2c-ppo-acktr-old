@@ -26,6 +26,7 @@ except ImportError:
 
 def make_env(env_id, seed, rank, log_dir, add_timestep, custom_gym=None):
     def _thunk():
+        print ("CUSTOM GYM:",custom_gym)
         if custom_gym is not None and custom_gym != "":
             module = importlib.import_module(custom_gym, package=None)
             print("imported env '{}'".format((custom_gym)))

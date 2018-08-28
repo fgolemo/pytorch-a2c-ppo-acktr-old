@@ -129,6 +129,8 @@ while True:
 
     if done:
         rewards.append(reward_buf)
+        if args.gather_rewards:
+            print("Rew:", reward_buf)
         reward_buf = 0
         env.reset()
 
@@ -136,5 +138,6 @@ while True:
         episode += 1
         if episode == args.episodes:
             if args.gather_rewards:
+                print ("Mean:",np.mean(rewards))
                 write_rewards(rewards)
             break

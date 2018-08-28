@@ -98,8 +98,12 @@ class RolloutStorage(object):
     def recurrent_generator(self, advantages, num_mini_batch):
         num_processes = self.rewards.size(1)
         assert num_processes >= num_mini_batch, (
-            f"PPO requires the number processes ({num_processes}) "
-            f"to be greater than or equal to the number of PPO mini batches ({num_mini_batch}).")
+            "PPO requires the number processes ({}) "
+            "to be greater than or equal to the number of PPO mini batches ({})."
+            "".format(
+                num_processes,
+                num_mini_batch
+            ))
         num_envs_per_batch = num_processes // num_mini_batch
         perm = torch.randperm(num_processes)
         for start_ind in range(0, num_processes, num_envs_per_batch):

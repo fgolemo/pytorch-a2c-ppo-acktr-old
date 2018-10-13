@@ -6,7 +6,9 @@ from gym.spaces.box import Box
 import importlib
 
 from baselines import bench
-from baselines.common.atari_wrappers import make_atari, wrap_deepmind
+from baselines.common.atari_wrappers import make_atari, wrap_deepmind, WarpFrame
+
+from pytorch_a2c_ppo_acktr.wrappers import DuckietownRewardWrapper
 
 try:
     import dm_control2gym
@@ -24,7 +26,7 @@ except ImportError:
     pass
 
 
-def make_env(env_id, seed, rank, log_dir, add_timestep, custom_gym=None):
+def make_env(env_id, seed, rank, log_dir, add_timestep, custom_gym=None, scale_img=False, duckietown=False):
     def _thunk():
         print ("CUSTOM GYM:",custom_gym)
         if custom_gym is not None and custom_gym != "":
@@ -40,6 +42,12 @@ def make_env(env_id, seed, rank, log_dir, add_timestep, custom_gym=None):
             env.unwrapped, gym.envs.atari.atari_env.AtariEnv)
         if is_atari:
             env = make_atari(env_id)
+        if not is_atari and scale_img:
+            env = WarpFrame(env)
+
+        if duckietown:
+            env = DuckietownRewardWrapper(env)
+
         env.seed(seed + rank)
 
         obs_shape = env.observation_space.shape
@@ -82,7 +90,7 @@ class WrapPyTorch(gym.ObservationWrapper):
         self.observation_space = Box(
             self.observation_space.low[0, 0, 0],
             self.observation_space.high[0, 0, 0],
-            [obs_shape[2], obs_shape[1], obs_shape[0]],
+            [obs_shape[2], obs_shape[0], obs_shape[1]],
             dtype=self.observation_space.dtype)
 
     def observation(self, observation):

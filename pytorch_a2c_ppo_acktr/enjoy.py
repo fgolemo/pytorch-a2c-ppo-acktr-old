@@ -139,5 +139,6 @@ while True:
         if episode == args.episodes:
             if args.gather_rewards:
                 print ("Mean:",np.mean(rewards))
+                print ("Median:",np.median(rewards))
                 write_rewards(rewards)
             break

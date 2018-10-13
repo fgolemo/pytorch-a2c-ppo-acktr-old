@@ -60,6 +60,10 @@ def get_args():
                         help='add timestep to observations')
     parser.add_argument('--recurrent-policy', action='store_true', default=False,
                         help='use a recurrent policy')
+    parser.add_argument('--scale-img', action='store_true', default=False,
+                        help='make img obs into 84x84')
+    parser.add_argument('--duckietown', action='store_true', default=False,
+                        help='add wrappers')
     parser.add_argument('--no-vis', action='store_true', default=False,
                         help='disables visdom visualization')
     parser.add_argument('--vis-host', type=str, default="http://localhost",

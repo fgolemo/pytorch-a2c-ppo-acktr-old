@@ -84,7 +84,7 @@ def main():
         viz = Visdom(server=args.vis_host, port=args.vis_port, ipv6=False)
         win = None
 
-    envs = [make_env(args.env_name, args.seed, i, args.log_dir, args.add_timestep, args.custom_gym)
+    envs = [make_env(args.env_name, args.seed, i, args.log_dir, args.add_timestep, args.custom_gym, args.scale_img, args.duckietown)
             for i in range(args.num_processes)]
 
     if args.num_processes > 1:

@@ -35,12 +35,17 @@ parser.add_argument('--load-dir', default='./trained_models/',
                     help='directory to save agent logs (default: ./trained_models/)')
 parser.add_argument('--add-timestep', action='store_true', default=False,
                     help='add timestep to observations')
+parser.add_argument('--scale-img', action='store_true', default=False,
+                    help='make img obs into 84x84')
+parser.add_argument('--duckietown', action='store_true', default=False,
+                    help='add wrappers')
+
 args = parser.parse_args()
 
 if not args.gather_rewards:
     print("===REWARDS ARE NOT BEING RECORDED===")
 
-env = make_env(args.env_name, args.seed, 0, None, args.add_timestep, custom_gym=args.custom_gym)
+env = make_env(args.env_name, args.seed, 0, None, args.add_timestep, args.custom_gym, args.scale_img, args.duckietown)
 env = DummyVecEnv([env])
 
 actor_critic, ob_rms = \

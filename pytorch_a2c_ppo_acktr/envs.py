@@ -7,6 +7,7 @@ import importlib
 
 from baselines import bench
 from baselines.common.atari_wrappers import make_atari, wrap_deepmind, WarpFrame
+from gym_duckietown.wrappers import DiscreteWrapper
 
 from pytorch_a2c_ppo_acktr.wrappers import DuckietownRewardWrapper
 
@@ -47,6 +48,7 @@ def make_env(env_id, seed, rank, log_dir, add_timestep, custom_gym=None, scale_i
 
         if duckietown:
             env = DuckietownRewardWrapper(env)
+            env = DiscreteWrapper(env)
 
         env.seed(seed + rank)
 

@@ -6,9 +6,9 @@ from gym.spaces.box import Box
 import importlib
 
 from baselines import bench
-from baselines.common.atari_wrappers import make_atari, wrap_deepmind, WarpFrame
+from baselines.common.atari_wrappers import make_atari, wrap_deepmind
 
-from pytorch_a2c_ppo_acktr.wrappers import DuckietownRewardWrapper, DuckietownDiscreteWrapper
+from pytorch_a2c_ppo_acktr.wrappers import DuckietownRewardWrapper, DuckietownDiscreteWrapper, WarpFrame
 
 try:
     import dm_control2gym
@@ -43,7 +43,7 @@ def make_env(env_id, seed, rank, log_dir, add_timestep, custom_gym=None, scale_i
         if is_atari:
             env = make_atari(env_id)
         if not is_atari and scale_img:
-            env = WarpFrame(env)
+            env = WarpFrame(env, True)
 
         if duckietown:
             env = DuckietownRewardWrapper(env)

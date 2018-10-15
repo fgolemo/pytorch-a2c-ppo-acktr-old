@@ -110,6 +110,7 @@ while True:
                                                     masks,
                                                     deterministic=True)
     cpu_actions = action.squeeze(1).cpu().numpy()
+    print(cpu_actions)
     # Obser reward and next obs
     obs, reward, done, _ = env.step(cpu_actions)
     reward_buf += reward

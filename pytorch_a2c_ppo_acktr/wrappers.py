@@ -1,3 +1,4 @@
+import cv2
 import gym
 from gym import spaces
 import numpy as np
@@ -10,9 +11,9 @@ class DuckietownRewardWrapper(gym.RewardWrapper):
 
     def reward(self, reward):
         if reward == -1000:
-            reward = -1000
+            reward = -1
         elif reward > 0:
-            reward += 6
+            reward += 10
         else:
             reward += 4
 
@@ -49,3 +50,25 @@ class DuckietownDiscreteWrapper(gym.ActionWrapper):
         else:
             assert False, "unknown action"
         return np.array(vels)
+
+class WarpFrame(gym.ObservationWrapper):
+    def __init__(self, env, color=False):
+        """Warp frames to 84x84 as done in the Nature paper and later work."""
+        gym.ObservationWrapper.__init__(self, env)
+        self.width = 84
+        self.height = 84
+        self.color = color
+        colors = 1
+        if color:
+            colors = 3
+        self.observation_space = spaces.Box(low=0, high=255,
+            shape=(self.height, self.width, colors), dtype=np.uint8)
+
+    def observation(self, frame):
+        frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
+        if not self.color:
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+            return frame[:, :, None]
+        else:
+            return frame
+

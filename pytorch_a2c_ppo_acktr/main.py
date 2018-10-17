@@ -84,7 +84,17 @@ def main():
         viz = Visdom(server=args.vis_host, port=args.vis_port, ipv6=False)
         win = None
 
-    envs = [make_env(args.env_name, args.seed, i, args.log_dir, args.add_timestep, args.custom_gym, args.scale_img, args.duckietown)
+    envs = [make_env(
+        args.env_name,
+        args.seed,
+        i,
+        args.log_dir,
+        args.add_timestep,
+        args.custom_gym,
+        args.scale_img,
+        args.duckietown,
+        args.dt_discrete,
+        args.color_img)
             for i in range(args.num_processes)]
 
     if args.num_processes > 1:
@@ -92,15 +102,15 @@ def main():
     else:
         envs = DummyVecEnv(envs)
 
-    if len(envs.observation_space.shape) == 1:
-        envs = VecNormalize(envs, gamma=args.gamma)
+    # if len(envs.observation_space.shape) == 1:
+    #     envs = VecNormalize(envs, gamma=args.gamma)
 
     obs_shape = envs.observation_space.shape
     print("original obs shape: {}, {}".format(obs_shape, args.num_stack))
     obs_shape = (obs_shape[0] * args.num_stack, *obs_shape[1:])
     print("final obs shape: {}".format(obs_shape))
 
-    actor_critic = Policy(obs_shape, envs.action_space, args.recurrent_policy, args.normalized)
+    actor_critic = Policy(obs_shape, envs.action_space, args.recurrent_policy, args.normalized, args.duckietown)
 
     if envs.action_space.__class__.__name__ == "Discrete":
         action_shape = 1
@@ -153,6 +163,7 @@ def main():
 
             # Obser reward and next obs
             obs, reward, done, info = envs.step(cpu_actions)
+            reward = np.clip(reward, -args.cliprew, args.cliprew)
             reward = torch.from_numpy(np.expand_dims(np.stack(reward), 1)).float()
             episode_rewards += reward
 

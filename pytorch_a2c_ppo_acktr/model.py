@@ -10,12 +10,12 @@ class Flatten(nn.Module):
 
 
 class Policy(nn.Module):
-    def __init__(self, obs_shape, action_space, recurrent_policy, normalized=False):
+    def __init__(self, obs_shape, action_space, recurrent_policy, normalized=False, duckietown=False):
         super(Policy, self).__init__()
         self.normalized = normalized
 
         if len(obs_shape) == 3:
-            self.base = CNNBase(obs_shape[0], recurrent_policy, is_normalized=normalized)
+            self.base = CNNBase(obs_shape[0], recurrent_policy, is_normalized=normalized, duckietown=duckietown)
         elif len(obs_shape) == 1:
             assert not recurrent_policy, \
                 "Recurrent policy is not implemented for the MLP controller"
@@ -66,23 +66,30 @@ class Policy(nn.Module):
 
 
 class CNNBase(nn.Module):
-    def __init__(self, num_inputs, use_gru, is_normalized):
+    def __init__(self, num_inputs, use_gru, is_normalized, duckietown=False):
         super(CNNBase, self).__init__()
 
         init_ = lambda m: init(m,
                                nn.init.orthogonal_,
                                lambda x: nn.init.constant_(x, 0),
-                               nn.init.calculate_gain('relu'))
+                               nn.init.calculate_gain('leaky_relu'))
+
+        flat_size = 32*5*5
+        if duckietown:
+            flat_size = 32*9*14
 
         self.main = nn.Sequential(
-            init_(nn.Conv2d(num_inputs, 32, 8, stride=4)),
-            nn.ReLU(),
-            init_(nn.Conv2d(32, 64, 4, stride=2)),
-            nn.ReLU(),
-            init_(nn.Conv2d(64, 32, 3, stride=1)),
-            nn.ReLU(),
+            init_(nn.Conv2d(num_inputs, 32, 8, stride=2)),
+            nn.LeakyReLU(),
+            init_(nn.Conv2d(32, 32, 4, stride=2)),
+            nn.LeakyReLU(),
+            init_(nn.Conv2d(32, 32, 4, stride=2)),
+            nn.LeakyReLU(),
+            init_(nn.Conv2d(32, 32, 4, stride=1)),
+            nn.LeakyReLU(),
             Flatten(),
-            init_(nn.Linear(32 * 7 * 7, 512)),
+            nn.Dropout(.5),
+            init_(nn.Linear(flat_size, 512)),
             nn.ReLU()
         )
 

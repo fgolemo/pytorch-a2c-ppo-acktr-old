@@ -8,7 +8,7 @@ import importlib
 from baselines import bench
 from baselines.common.atari_wrappers import make_atari, wrap_deepmind
 
-from pytorch_a2c_ppo_acktr.wrappers import DuckietownRewardWrapper, DuckietownDiscreteWrapper, WarpFrame
+from pytorch_a2c_ppo_acktr.wrappers import DuckietownRewardWrapper, DuckietownDiscreteWrapper, WarpFrame, Normalize
 
 try:
     import dm_control2gym
@@ -26,7 +26,8 @@ except ImportError:
     pass
 
 
-def make_env(env_id, seed, rank, log_dir, add_timestep, custom_gym=None, scale_img=False, duckietown=False):
+def make_env(env_id, seed, rank, log_dir, add_timestep,
+             custom_gym=None, scale_img=False, duckietown=False, dt_discrete=False, color_img=False):
     def _thunk():
         print ("CUSTOM GYM:",custom_gym)
         if custom_gym is not None and custom_gym != "":
@@ -42,12 +43,15 @@ def make_env(env_id, seed, rank, log_dir, add_timestep, custom_gym=None, scale_i
             env.unwrapped, gym.envs.atari.atari_env.AtariEnv)
         if is_atari:
             env = make_atari(env_id)
-        if not is_atari and scale_img:
-            env = WarpFrame(env, True)
+        if not is_atari and scale_img and not duckietown:
+            env = WarpFrame(env, color_img)
 
         if duckietown:
             env = DuckietownRewardWrapper(env)
-            env = DuckietownDiscreteWrapper(env)
+            if dt_discrete:
+                env = DuckietownDiscreteWrapper(env)
+
+        env = Normalize(env)
 
         env.seed(seed + rank)
 

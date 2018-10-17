@@ -11,7 +11,7 @@ class DuckietownRewardWrapper(gym.RewardWrapper):
 
     def reward(self, reward):
         if reward == -1000:
-            reward = -1
+            reward = -10
         elif reward > 0:
             reward += 10
         else:
@@ -72,3 +72,16 @@ class WarpFrame(gym.ObservationWrapper):
         else:
             return frame
 
+class Normalize(gym.ObservationWrapper):
+    def __init__(self, env=None):
+        super().__init__(env)
+        self.obs_lo = self.observation_space.low[0,0,0]
+        self.obs_hi = self.observation_space.high[0,0,0]
+        obs_shape = self.observation_space.shape
+        self.observation_space = spaces.Box(0.0, 1.0, obs_shape, dtype=np.float32)
+
+    def observation(self, obs):
+        if self.obs_lo == 0.0 and self.obs_hi == 1.0:
+            return obs
+        else:
+            return (obs - self.obs_lo) / (self.obs_hi - self.obs_lo)

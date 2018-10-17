@@ -68,6 +68,8 @@ def get_args():
                         help='make duckietown env discrete')
     parser.add_argument('--color-img', action='store_true', default=False,
                         help='if false, the image is grayscale')
+    parser.add_argument('--max-ep', type=int, default=500,
+                        help="maximum steps of the environment if it doesn't have any (default: 500)")
     parser.add_argument('--cliprew', type=int, default=10,
                         help='reward clipping (default: 10)')
     parser.add_argument('--no-vis', action='store_true', default=False,

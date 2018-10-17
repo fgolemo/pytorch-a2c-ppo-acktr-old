@@ -39,13 +39,18 @@ parser.add_argument('--scale-img', action='store_true', default=False,
                     help='make img obs into 84x84')
 parser.add_argument('--duckietown', action='store_true', default=False,
                     help='add wrappers')
+parser.add_argument('--dt-discrete', action='store_true', default=False,
+                    help='make duckietown env discrete')
+parser.add_argument('--color-img', action='store_true', default=False,
+                    help='if false, the image is grayscale')
 
 args = parser.parse_args()
 
 if not args.gather_rewards:
     print("===REWARDS ARE NOT BEING RECORDED===")
 
-env = make_env(args.env_name, args.seed, 0, None, args.add_timestep, args.custom_gym, args.scale_img, args.duckietown)
+env = make_env(args.env_name, args.seed, 0, None, args.add_timestep,
+               args.custom_gym, args.scale_img, args.duckietown, args.dt_discrete, args.color_img)
 env = DummyVecEnv([env])
 
 actor_critic, ob_rms = \

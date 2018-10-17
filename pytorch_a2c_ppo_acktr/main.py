@@ -22,7 +22,7 @@ except ImportError:
 from pytorch_a2c_ppo_acktr.arguments import get_args
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
-from baselines.common.vec_env.vec_normalize import VecNormalize
+# from baselines.common.vec_env.vec_normalize import VecNormalize
 from pytorch_a2c_ppo_acktr.envs import make_env
 from pytorch_a2c_ppo_acktr.model import Policy
 from pytorch_a2c_ppo_acktr.storage import RolloutStorage
@@ -95,7 +95,7 @@ def main():
         args.duckietown,
         args.dt_discrete,
         args.color_img)
-            for i in range(args.num_processes)]
+        for i in range(args.num_processes)]
 
     if args.num_processes > 1:
         envs = SubprocVecEnv(envs)
@@ -138,6 +138,7 @@ def main():
     current_obs = torch.zeros(args.num_processes, *obs_shape)
 
     obs = envs.reset()
+    episode_time = 0
     update_current_obs(obs, current_obs, obs_shape, args.num_stack)
 
     rollouts.observations[0].copy_(current_obs)
@@ -163,6 +164,12 @@ def main():
 
             # Obser reward and next obs
             obs, reward, done, info = envs.step(cpu_actions)
+            episode_time += 1
+            if episode_time == args.max_ep:
+                episode_time = 0
+                done = [True for _ in done] # yeah this is nasty if you have multiple envs in parallel.
+                envs.reset()
+
             reward = np.clip(reward, -args.cliprew, args.cliprew)
             reward = torch.from_numpy(np.expand_dims(np.stack(reward), 1)).float()
             episode_rewards += reward

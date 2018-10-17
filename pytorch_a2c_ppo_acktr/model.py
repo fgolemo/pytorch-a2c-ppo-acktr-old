@@ -10,12 +10,13 @@ class Flatten(nn.Module):
 
 
 class Policy(nn.Module):
-    def __init__(self, obs_shape, action_space, recurrent_policy, normalized=False, duckietown=False):
+    def __init__(self, obs_shape, action_space, recurrent_policy, normalized=False, duckietown=False, scale_img=False):
         super(Policy, self).__init__()
         self.normalized = normalized
 
         if len(obs_shape) == 3:
-            self.base = CNNBase(obs_shape[0], recurrent_policy, is_normalized=normalized, duckietown=duckietown)
+            self.base = CNNBase(obs_shape[0], recurrent_policy,
+                                is_normalized=normalized, duckietown=duckietown, scaled=scale_img)
         elif len(obs_shape) == 1:
             assert not recurrent_policy, \
                 "Recurrent policy is not implemented for the MLP controller"
@@ -66,7 +67,7 @@ class Policy(nn.Module):
 
 
 class CNNBase(nn.Module):
-    def __init__(self, num_inputs, use_gru, is_normalized, duckietown=False):
+    def __init__(self, num_inputs, use_gru, is_normalized, duckietown=False, scaled=False):
         super(CNNBase, self).__init__()
 
         init_ = lambda m: init(m,
@@ -74,9 +75,9 @@ class CNNBase(nn.Module):
                                lambda x: nn.init.constant_(x, 0),
                                nn.init.calculate_gain('leaky_relu'))
 
-        flat_size = 32*5*5
-        if duckietown:
-            flat_size = 32*9*14
+        flat_size = 32 * 5 * 5
+        if duckietown and not scaled:
+            flat_size = 32 * 9 * 14
 
         self.main = nn.Sequential(
             init_(nn.Conv2d(num_inputs, 32, 8, stride=2)),

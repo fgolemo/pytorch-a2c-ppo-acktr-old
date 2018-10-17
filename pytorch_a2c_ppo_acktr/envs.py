@@ -29,7 +29,7 @@ except ImportError:
 def make_env(env_id, seed, rank, log_dir, add_timestep,
              custom_gym=None, scale_img=False, duckietown=False, dt_discrete=False, color_img=False):
     def _thunk():
-        print ("CUSTOM GYM:",custom_gym)
+        print("CUSTOM GYM:", custom_gym)
         if custom_gym is not None and custom_gym != "":
             module = importlib.import_module(custom_gym, package=None)
             print("imported env '{}'".format((custom_gym)))
@@ -43,7 +43,7 @@ def make_env(env_id, seed, rank, log_dir, add_timestep,
             env.unwrapped, gym.envs.atari.atari_env.AtariEnv)
         if is_atari:
             env = make_atari(env_id)
-        if not is_atari and scale_img and not duckietown:
+        if not is_atari and scale_img:
             env = WarpFrame(env, color_img)
 
         if duckietown:

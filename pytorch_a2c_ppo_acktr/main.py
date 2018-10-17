@@ -110,7 +110,8 @@ def main():
     obs_shape = (obs_shape[0] * args.num_stack, *obs_shape[1:])
     print("final obs shape: {}".format(obs_shape))
 
-    actor_critic = Policy(obs_shape, envs.action_space, args.recurrent_policy, args.normalized, args.duckietown)
+    actor_critic = Policy(obs_shape, envs.action_space, args.recurrent_policy,
+                          args.normalized, args.duckietown, args.scale_img)
 
     if envs.action_space.__class__.__name__ == "Discrete":
         action_shape = 1
@@ -167,7 +168,7 @@ def main():
             episode_time += 1
             if episode_time == args.max_ep:
                 episode_time = 0
-                done = [True for _ in done] # yeah this is nasty if you have multiple envs in parallel.
+                done = [True for _ in done]  # yeah this is nasty if you have multiple envs in parallel.
                 envs.reset()
 
             reward = np.clip(reward, -args.cliprew, args.cliprew)

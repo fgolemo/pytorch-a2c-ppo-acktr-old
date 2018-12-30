@@ -75,8 +75,8 @@ class WarpFrame(gym.ObservationWrapper):
 class Normalize(gym.ObservationWrapper):
     def __init__(self, env=None):
         super().__init__(env)
-        self.obs_lo = self.observation_space.low[0,0,0]
-        self.obs_hi = self.observation_space.high[0,0,0]
+        self.obs_lo = self.observation_space.low[0] #FIXME this is suuuuper shoddy
+        self.obs_hi = self.observation_space.high[0]
         obs_shape = self.observation_space.shape
         self.observation_space = spaces.Box(0.0, 1.0, obs_shape, dtype=np.float32)
 

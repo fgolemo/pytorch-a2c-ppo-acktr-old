@@ -219,9 +219,8 @@ def main():
                           hasattr(envs, 'ob_rms') and envs.ob_rms or None]
 
             save_model_path = os.path.join(
-                save_path,
-                args.env_name + "-" + run_name)
-            torch.save(save_model, save_model_path + ".pt")
+                save_path, "{}-{}-{}.pt".format(args.env_name, run_name, num_updates * args.num_steps))
+            torch.save(save_model, save_model_path)
 
             if final_rewards.mean() > highest_mean_reward:
                 highest_mean_reward = final_rewards.mean()

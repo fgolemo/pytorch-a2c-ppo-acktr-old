@@ -225,7 +225,7 @@ def main():
             if final_rewards.mean() > highest_mean_reward:
                 highest_mean_reward = final_rewards.mean()
 
-                copyfile(save_model_path + ".pt", save_model_path + "-best.pt")
+                copyfile(save_model_path, save_model_path[:-3] + "-best.pt")
 
         if j % args.log_interval == 0:
             end = time.time()
